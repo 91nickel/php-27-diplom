@@ -1,10 +1,12 @@
 <?php
 
-class User extends Actions
+class User
 {
+    public $dataBases;
+
     public function __construct()
     {
-        parent::__construct();
+        $this->dataBases = new DataBases();
     }
 
     public function select($array = [])
@@ -21,7 +23,6 @@ class User extends Actions
     {
         return $this->dataBases->updateData('users', ['password' => md5($password)], ['id' => $id]);
     }
-
 
     public function delete($id)
     {

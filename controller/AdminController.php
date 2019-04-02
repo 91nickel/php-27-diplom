@@ -33,7 +33,7 @@ class AdminController
     {
         $show = new AdminController();
         include_once 'view/flashShow.php';
-        $this->function->flashShow();
+        Functions::flashShow();
     }
 
     //отображает башку
@@ -71,9 +71,9 @@ class AdminController
     //отображает блок контент
     public function viewContent()
     {
-        $theme = $this->theme->select();
-        $array = $this->content->select();
-        //$array = $this->content->themeQuestions($theme, $array);
+        $theme = $this->theme->select(['status' => 1]);
+        $content = $this->content->select();
+        $array = $this->content->formContentArray($theme, $content);
 
         $counter = $this->contentCounter();
         include('view/admin/content.php');
@@ -122,7 +122,9 @@ class AdminController
     //отображает форму перемещения вопрос-ответа в другую тему
     public function viewMoveContent()
     {
-        $array = $this->content->select();
+        $theme = $this->theme->select(['status' => 1]);
+        $content = $this->content->select();
+        $array = $this->content->formContentArray($theme, $content);
         include('view/admin/moveContent.php');
     }
 
@@ -135,14 +137,18 @@ class AdminController
     //отображает форму ответа на вопрос без публикации
     public function viewAnswerQuestion()
     {
-        $array = $this->content->select();
+        $theme = $this->theme->select(['status' => 1]);
+        $content = $this->content->select();
+        $array = $this->content->formContentArray($theme, $content);
         include('view/admin/answerQuestion.php');
     }
 
     //отображает форму ответа на вопрос и публикации
     public function viewAnswerQuestionPublish()
     {
-        $array = $this->content->select();
+        $theme = $this->theme->select(['status' => 1]);
+        $content = $this->content->select();
+        $array = $this->content->formContentArray($theme, $content);
         include('view/admin/answerQuestionPublish.php');
     }
 
@@ -160,20 +166,20 @@ class AdminController
         $link = 'admin.php';
 
         if (!isset($login) || !isset($password) || trim($login) === '' || trim($password) === '') {
-            $this->function->flashError("Все поля должны быть заполнены!", $link);
+            Functions::flashError("Все поля должны быть заполнены!", $link);
         }
         $res = $this->user->select(['login' => $login]);
         if (count($res) > 0) {
-            $this->function->flashError('Администратор с таким именем уже существует', $link);
+            Functions::flashError('Администратор с таким именем уже существует', $link);
         }
 
         $res = $this->user->add($login, $password);
 
         if ((int)$res === 0) {
-            $this->function->flashError("К сожалению администратор не был добавлен!", $link);
+            Functions::flashError("К сожалению администратор не был добавлен!", $link);
         }
 
-        $this->function->flashOk('Новый администратор успешно добавлен!', $link);
+        Functions::flashOk('Новый администратор успешно добавлен!', $link);
     }
 
     // меняет данные администратора
@@ -188,20 +194,20 @@ class AdminController
             (int)$id === 0 ||
             trim($password) === '') {
 
-            $this->function->flashError("Все поля должны быть заполнены!", $link);
+            Functions::flashError("Все поля должны быть заполнены!", $link);
         }
 
         $res = $this->user->select(['id' => $id]);
         if (count($res) === 0) {
-            $this->function->flashError("Администратора с таким идентификатором не существует!", $link);
+            Functions::flashError("Администратора с таким идентификатором не существует!", $link);
         }
 
         $res = $this->user->edit($id, $password);
         if (!$res) {
-            $this->function->flashError("К сожалению не удалось изменить пароль у администратора!", $link);
+            Functions::flashError("К сожалению не удалось изменить пароль у администратора!", $link);
         }
 
-        $this->function->flashOk('Пароль администратора успешно изменен!', $link);
+        Functions::flashOk('Пароль администратора успешно изменен!', $link);
     }
 
     //удаляет администратора
@@ -211,18 +217,18 @@ class AdminController
         $link = 'admin.php?view=EditAdmin';
 
         if (!isset($id) || (int)$id === 0) {
-            $this->function->flashError("Все поля должны быть заполнены", $link);
+            Functions::flashError("Все поля должны быть заполнены", $link);
         }
 
         $res = $this->user->select(['id' => $id]);
 
         if (count($res) === 0) {
-            $this->function->flashError("Администратора с таким идентификатором не существует!", $link);
+            Functions::flashError("Администратора с таким идентификатором не существует!", $link);
         }
 
         $res = $this->user->delete($id);
 
-        $this->function->flashOk('Администратор успешно удален!', $link);
+        Functions::flashOk('Администратор успешно удален!', $link);
     }
 
     //Добавляет тему в блоке добавления темы
@@ -232,15 +238,15 @@ class AdminController
         $link = 'admin.php?view=AddTheme';
 
         if (!isset($name) || trim($name) === '') {
-            $this->function->flashError("Все поля должны быть заполнены!", $link);
+            Functions::flashError("Все поля должны быть заполнены!", $link);
         }
 
         $res = $this->theme->add($name);
         if ((int)$res === 0) {
-            $this->function->flashError("К сожалению тема не была добавлена!", $link);
+            Functions::flashError("К сожалению тема не была добавлена!", $link);
         }
 
-        $this->function->flashOk('Тема успешно добавлена!', $link);
+        Functions::flashOk('Тема успешно добавлена!', $link);
     }
 
     // удаляет тему в блоке контент
@@ -250,16 +256,16 @@ class AdminController
         $link = 'admin.php?view=Content';
 
         if (!isset($id) || (int)$id === 0) {
-            $this->function->flashError("Не существуют основные параметры", $link);
+            Functions::flashError("Не существуют основные параметры", $link);
         }
 
         $res = $this->theme->select(['id' => $id]);
         if (count($res) === 0) {
-            $this->function->flashError("Темы с таким идентификатором нет в системе!", $link);
+            Functions::flashError("Темы с таким идентификатором нет в системе!", $link);
         }
 
         $this->theme->delete($id);
-        $this->function->flashOk('Тема успешно удалена!', $link);
+        Functions::flashOk('Тема успешно удалена!', $link);
     }
 
     // Добавляет вопрос в блок контент
@@ -276,15 +282,15 @@ class AdminController
             (int)$idTheme === 0 ||
             trim($question) === '' ||
             trim($answer) === '') {
-            $this->function->flashError("Не существуют основные параметры!", $link);
+            Functions::flashError("Не существуют основные параметры!", $link);
         }
 
         $res = $this->content->add($idTheme, $question, $answer);
         if ((int)$res === 0) {
-            $this->function->flashError("К сожалению тема не была добавлена!", $link);
+            Functions::flashError("К сожалению тема не была добавлена!", $link);
         }
 
-        $this->function->flashOk('Тема успешно добавлена!', $link);
+        Functions::flashOk('Тема успешно добавлена!', $link);
     }
 
     // Редактирует вопрос в блоке контент
@@ -304,20 +310,20 @@ class AdminController
             trim($question) === '' ||
             trim($answer) === '' ||
             trim($name) === '') {
-            $this->function->flashError("Не существуют основные параметры!", $link);
+            Functions::flashError("Не существуют основные параметры!", $link);
         }
+        $theme = $this->theme->select(['id' => $idTheme, 'status' => 1]);
 
-        $res = $this->content->select('content', ['id' => $idTheme]);
-        if (count($res) === 0) {
-            $this->function->flashError("Темы с таким идентификатором не сущесвует!", $link);
+        if (count($theme) === 0) {
+            Functions::flashError("Темы с таким идентификатором не сущесвует!", $link);
         }
 
         $res = $this->content->edit($idTheme, $name, $question, $answer);
         if (!$res) {
-            $this->function->flashError("Не удалось изменить вопрос!", $link);
+            Functions::flashError("Не удалось изменить вопрос!", $link);
         }
 
-        $this->function->flashOk('Вопрос  отредактирован!', $link);
+        Functions::flashOk('Вопрос  отредактирован!', $link);
     }
 
     // Перемещает вопрос в блоке контент
@@ -331,20 +337,20 @@ class AdminController
             !isset($theme) ||
             (int)$idTheme === 0 ||
             (int)$theme === 0) {
-            $this->function->flashError("Не существуют основные параметры!", $link);
+            Functions::flashError("Не существуют основные параметры!", $link);
         }
 
         $res = $this->theme->select(['id' => $theme]);
         if (count($res) === 0) {
-            $this->function->flashError("Темы с таким идентификатором не сущесвует!", $link);
+            Functions::flashError("Темы с таким идентификатором не сущесвует!", $link);
         }
 
         $res = $this->content->move($idTheme, $theme);
         if (!$res) {
-            $this->function->flashError("Не удалось переместить вопрос!", $link);
+            Functions::flashError("Не удалось переместить вопрос!", $link);
         }
 
-        $this->function->flashOk('Вопрос перемещен!', $link);
+        Functions::flashOk('Вопрос перемещен!', $link);
     }
 
     //удаляет вопрос в блоке контент
@@ -354,16 +360,16 @@ class AdminController
         $link = 'admin.php?view=Content';
 
         if (!isset($id) || (int)$id === 0) {
-            $this->function->flashError("Не существуют основные параметры!", $link);
+            Functions::flashError("Не существуют основные параметры!", $link);
         }
 
         $res = $this->content->select(['id' => $id]);
         if (count($res) === 0) {
-            $this->function->flashError("Вопросы с таким идентификатором нет в системе!", $link);
+            Functions::flashError("Вопросы с таким идентификатором нет в системе!", $link);
         }
 
         $res = $this->content->delete($id);
-        $this->function->flashOk('Вопрос успешно удален!', $link);
+        Functions::flashOk('Вопрос успешно удален!', $link);
     }
 
     //изменяет статус публикации в блоке контент
@@ -374,20 +380,20 @@ class AdminController
         $link = 'admin.php?view=Content';
 
         if (!isset($id) || !isset($status) || (int)$id === 0) {
-            $this->function->flashError("Не существуют основные параметры!", $link);
+            Functions::flashError("Не существуют основные параметры!", $link);
         }
 
         $res = $this->content->select(['id' => $id]);
         if (count($res) === 0) {
-            $this->function->flashError("Вопроса с таким идентификатором нет в системе!", $link);
+            Functions::flashError("Вопроса с таким идентификатором нет в системе!", $link);
         }
 
         $res = $this->content->changeStatus($id, $status);
         if (!$res) {
-            $this->function->flashError("Статус не изменен!", $link);
+            Functions::flashError("Статус не изменен!", $link);
         }
 
-        $this->function->flashOk('Статус изменен!', $link);
+        Functions::flashOk('Статус изменен!', $link);
     }
 
     //редактирует вопрос в блоке вопросов
@@ -398,20 +404,20 @@ class AdminController
         $link = 'admin.php?view=Questions';
 
         if ((int)$id === 0 || trim($question) === '') {
-            $this->function->flashError("Все поля должны быть заполнены!", $link);
+            Functions::flashError("Все поля должны быть заполнены!", $link);
         }
-        $res = $this->questions->select('question', ['id' => $id]);
+        $res = $this->questions->select(['id' => $id]);
 
         if (count($res) === 0) {
-            $this->function->flashError("Вопроса с таким идентификатором не сущесвует!", $link);
+            Functions::flashError("Вопроса с таким идентификатором не сущесвует!", $link);
         }
 
         $res = $this->questions->edit($id, $question);
         if (!$res) {
-            $this->function->flashError("Не удалось изменить вопрос!", $link);
+            Functions::flashError("Не удалось изменить вопрос!", $link);
         }
 
-        $this->function->flashOk('Вопрос  отредактирован!', $link);
+        Functions::flashOk('Вопрос  отредактирован!', $link);
     }
 
     public function actionAnswerQuestionPublish($params)
@@ -437,15 +443,15 @@ class AdminController
             trim($name) === '' ||
             trim($email) === '') {
 
-            $this->function->flashError("Не существуют основные параметры!", $link);
+            Functions::flashError("Не существуют основные параметры!", $link);
         }
 
         $res = $this->questions->answerPublish($question, $id, $name, $email, $idTheme, $answer);
         if ((int)$res === 0) {
-            $this->function->flashError("К сожалению вопрос  не был добавлен!", $link);
+            Functions::flashError("К сожалению вопрос  не был добавлен!", $link);
         }
 
-        $this->function->flashOk('Вопрос успешно добавлен!', $link);
+        Functions::flashOk('Вопрос успешно добавлен!', $link);
     }
 
     public function actionAnswerQuestion($params)
@@ -470,16 +476,16 @@ class AdminController
             trim($answer) === '' ||
             trim($name) === '' ||
             trim($email) === '') {
-            $this->function->flashError("Не существуют основные параметры!", $link);
+            Functions::flashError("Не существуют основные параметры!", $link);
         }
 
         $res = $this->questions->answer($question, $id, $name, $email, $idTheme, $answer);
 
         if ((int)$res === 0) {
-            $this->function->flashError("К сожалению вопрос  не был добавлен!", $link);
+            Functions::flashError("К сожалению вопрос  не был добавлен!", $link);
         }
 
-        $this->function->flashOk('Вопрос успешно добавлен!', $link);
+        Functions::flashOk('Вопрос успешно добавлен!', $link);
     }
 
     public function actionDeleteQuestion($params)
@@ -488,16 +494,16 @@ class AdminController
         $link = 'admin.php?view=Questions';
 
         if (!isset($id) || (int)$id === 0) {
-            $this->function->flashError("Не существуют основные параметры!", $link);
+            Functions::flashError("Не существуют основные параметры!", $link);
         }
 
-        $res = $this->questions->select('question', ['id' => $id]);
+        $res = $this->questions->select(['id' => $id]);
         if (count($res) === 0) {
-            $this->function->flashError("Такого вопроса, нет!", $link);
+            Functions::flashError("Такого вопроса, нет!", $link);
         }
 
         $res = $this->questions->delete($id);
-        $this->function->flashOk('Вопрос успешно удален!', $link);
+        Functions::flashOk('Вопрос успешно удален!', $link);
     }
 
     //получает массив информации для счетчиков в блоке контента

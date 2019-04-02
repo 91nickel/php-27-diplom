@@ -1,25 +1,17 @@
 <?php
 
-class Content extends Actions
+class Content
 {
+    public $dataBases;
+
     public function __construct()
     {
-        parent::__construct();
+        $this->dataBases = new DataBases();
     }
 
-    public function select()
+    public function select($where = [])
     {
-        $array = [];
-        foreach ($this->dataBases->whereSelect('theme', ['status' => 1]) as $item) {
-            $array[$item['id']]['name'] = $item['name'];
-            $array[$item['id']]['data'] = [];
-            foreach ($this->dataBases->whereSelect('content', ['status' => 1]) as $key) {
-                if ((int)$item['id'] === (int)$key['id_theme'] && trim($key['answer']) !== '') {
-                    $array[$item['id']]['data'][$key['id']] = $key;
-                }
-            }
-        }
-        return $array;
+        return $this->dataBases->whereSelect('content', $where);
     }
 
     public function add($idTheme, $question, $answer)
@@ -50,8 +42,7 @@ class Content extends Actions
         return $this->dataBases->updateData('content', ['status' => (int)$status], ['id' => $id]);
     }
 
-    //Формирует массив для блока контента
-    public function themeQuestions($theme, $content)
+    public function formContentArray($theme, $content)
     {
         $array = [];
         foreach (array_reverse($theme) as $item) {

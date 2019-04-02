@@ -1,39 +1,22 @@
 <?php
 
-class Question extends Actions
+class Question
 {
+    public $dataBases;
+
     public function __construct()
     {
-        parent::__construct();
+        $this->dataBases = new DataBases();
     }
 
-    public function select()
+    public function select($where = [])
     {
-        return $this->dataBases->whereSelect('question', $array = []);
+        return $this->dataBases->whereSelect('question', $where);
     }
 
     public function add($name, $email, $theme, $question)
     {
-        if (
-            !isset($name) ||
-            !isset($email) ||
-            !isset($theme) ||
-            !isset($question) ||
-            trim($name) === '' ||
-            trim($email) === '' ||
-            trim($question) === '' ||
-            (int)$theme === 0
-        ) {
-            $this->function->flashError("Некорректно переданы параметры, проверьте чтобы все поля были заполнены!");
-        }
-        $res = $this->dataBases->insertData('question', ['name' => $name, 'email' => $email, 'theme' => $theme, 'question' => $question]);
-
-        if ((int)$res === 0) {
-            $this->function->flashError("К сожалению ваш вопрос не был доставлен!");
-        }
-        $this->function->flashOk('Вопрос успешно отправлен!');
-        $this->function->redirect('index.php');
-
+        return $this->dataBases->insertData('question', ['name' => $name, 'email' => $email, 'theme' => $theme, 'question' => $question]);
     }
 
     public function answer($question, $id, $name, $email, $idTheme, $answer)
@@ -46,7 +29,6 @@ class Question extends Actions
         $array['email'] = $email;
         $array['id_theme'] = $idTheme;
         $array['answer'] = $answer;
-
         $array['date'] = time();
 
         return $this->dataBases->insertData('content', $array);

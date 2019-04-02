@@ -1,10 +1,12 @@
 <?php
 
-class Theme extends Actions
+class Theme
 {
+    public $dataBases;
+
     public function __construct()
     {
-        parent::__construct();
+        $this->dataBases = new DataBases();
     }
 
     public function select($array = [])

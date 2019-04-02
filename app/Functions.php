@@ -3,7 +3,7 @@ ob_start();
 
 class Functions
 {
-    function redirect($url = '/')
+    public static function redirect($url = '/')
     {
         unset($_GET);
         unset($_POST);
@@ -12,7 +12,7 @@ class Functions
         exit();
     }
 
-    public function flashShow()
+    public static function flashShow()
     {
         $session = '';
         if (isset($_SESSION['success'])) {
@@ -27,18 +27,18 @@ class Functions
     }
 
     /*Вывод успешного завершения */
-    public function flashOk($message, $link = '/')
+    public static function flashOk($message, $link = '/')
     {
         $_SESSION['success'] = $message;
         unset($_SESSION[$message]);
-        $this->redirect($link);
+        Functions::redirect($link);
     }
 
     /*Вывод ошибки */
-    public function flashError($message, $link = '/')
+    public static function flashError($message, $link = '/')
     {
         $_SESSION['error'] = $message;
         unset($_SESSION[$message]);
-        $this->redirect($link);
+        Functions::redirect($link);
     }
 }

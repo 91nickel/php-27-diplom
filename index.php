@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once('controller/indexController.php');
+require_once('controller/IndexController.php');
 $indexController = new IndexController;
 
 $indexController->viewHead();

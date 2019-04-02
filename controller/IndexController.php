@@ -32,7 +32,7 @@ class IndexController
     {
         $show = new IndexController();
         include_once 'view/flashShow.php';
-        $this->function->flashShow();
+        Functions::flashShow();
     }
 
     //отображает форму для задавания вопроса через index.php
@@ -84,8 +84,26 @@ class IndexController
         $theme = $params['theme'];
         $question = $params['question'];
 
-        $this->questions->add($name, $email, $theme, $question);
-        $this->function->redirect();
+        if (
+            !isset($name) ||
+            !isset($email) ||
+            !isset($theme) ||
+            !isset($question) ||
+            trim($name) === '' ||
+            trim($email) === '' ||
+            trim($question) === '' ||
+            (int)$theme === 0
+        ) {
+            Functions::flashError("Некорректно переданы параметры, проверьте чтобы все поля были заполнены!");
+        }
+
+        $res = $this->questions->add($name, $email, $theme, $question);
+
+        if ((int)$res === 0) {
+            Functions::flashError("К сожалению ваш вопрос не был доставлен!");
+        }
+        Functions::flashOk('Вопрос успешно отправлен!');
+        Functions::redirect();
     }
 
     public function actionLogin($params)
@@ -95,24 +113,24 @@ class IndexController
         $link = 'index.php?view=LoginForm';
 
         if ($this->action->authIsLogin()) {
-            $this->function->redirect();
+            Functions::redirect();
         }
         if (!isset($login) ||
             !isset($password) ||
             trim($login) === '' ||
             trim($password) === '') {
-            $this->function->flashError("Все поля должны быть заполнены!");
+            Functions::flashError("Все поля должны быть заполнены!");
             return;
         }
 
         $res = $this->action->login($login, $password);
 
         if (count($res) === 0) {
-            $this->function->flashError("Неверно введен логин и/или пароль!");
+            Functions::flashError("Неверно введен логин и/или пароль!");
             return;
         }
         $_SESSION['login'] = $login;
-        $this->function->redirect('admin.php');
+        Functions::redirect('admin.php');
     }
 
     //проверка на авторизацию

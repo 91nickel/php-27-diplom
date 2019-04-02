@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once('controller/adminController.php');
+require_once('controller/AdminController.php');
 $adminController = new AdminController;
 
 $adminController->viewHead();

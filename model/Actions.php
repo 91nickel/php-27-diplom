@@ -3,12 +3,10 @@
 class Actions
 {
     public $dataBases;
-    public $function;
 
     public function __construct()
     {
         $this->dataBases = new DataBases();
-        $this->function = new Functions();
     }
 
     public function login($login, $password)
@@ -20,7 +18,7 @@ class Actions
     public function logOut()
     {
         unset($_SESSION['login']);
-        $this->function->redirect('/');
+        Functions::redirect('/');
     }
 
     function authIsLogin()
@@ -28,7 +26,6 @@ class Actions
         if (!isset($_SESSION['login']) || trim($_SESSION['login']) === '') {
             return false;
         }
-
         return true;
     }
 

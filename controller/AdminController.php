@@ -131,8 +131,8 @@ class AdminController
         $theme = new Theme();
         $content = new Content();
         $theme = $theme->select(['status' => 1]);
-        $content = $content->select();
-        $array = $this->content->formContentArray($theme, $content);
+        $cont = $content->select();
+        $array = $content->formContentArray($theme, $cont);
         include('view/admin/moveContent.php');
     }
 

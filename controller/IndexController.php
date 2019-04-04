@@ -52,18 +52,25 @@ class IndexController
     //отображает категории в index.php
     public function viewCategories()
     {
+        $theme = new Theme();
         $content = new Content();
         $function = new Functions();
-        $array = $content->select();
         $controller = new IndexController();
+        $theme = $theme->select(['status' => 1]);
+        $cont = $content->select();
+        $array = $content->formContentArray($theme, $cont);
+
         include('view/Categories.php');
     }
 
     //отображает вопросы в index.php
     public function viewContent()
     {
+        $theme = new Theme();
         $content = new Content();
-        $array = $content->select();
+        $theme = $theme->select(['status' => 1]);
+        $cont = $content->select();
+        $array = $content->formContentArray($theme, $cont);
         include('view/Content.php');
     }
 

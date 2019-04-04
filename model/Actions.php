@@ -28,8 +28,6 @@ class Actions
         }
         return true;
     }
-
-
 }
 
 ?>

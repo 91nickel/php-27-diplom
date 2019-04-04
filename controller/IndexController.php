@@ -14,18 +14,16 @@ class IndexController
     public $questions;
     public $user;
     public $content;
-    public $function;
     public $action;
     public $theme;
 
     public function __construct()
     {
-        $this->questions = new Question();
-        $this->function = new Functions();
-        $this->action = new Actions();
-        $this->user = new User();
-        $this->content = new Content();
-        $this->theme = new Theme();
+        //$this->questions = new Question();
+        //$this->action = new Actions();
+        //$this->user = new User();
+        //$this->content = new Content();
+        //$this->theme = new Theme();
     }
 
     public function viewFlashShow()
@@ -38,8 +36,10 @@ class IndexController
     //отображает форму для задавания вопроса через index.php
     public function viewAddQuestion()
     {
-        $theme = $this->theme->select();
-        $array = $this->content->select();
+        $theme = new Theme();
+        $content = new Content();
+        $theme = $theme->select();
+        $array = $content->select();
         include('view/addQuestion.php');
     }
 
@@ -52,8 +52,9 @@ class IndexController
     //отображает категории в index.php
     public function viewCategories()
     {
-        $function = $this->function;
-        $array = $this->content->select();
+        $content = new Content();
+        $function = new Functions();
+        $array = $content->select();
         $controller = new IndexController();
         include('view/Categories.php');
     }
@@ -61,7 +62,8 @@ class IndexController
     //отображает вопросы в index.php
     public function viewContent()
     {
-        $array = $this->content->select();
+        $content = new Content();
+        $array = $content->select();
         include('view/Content.php');
     }
 
@@ -83,6 +85,7 @@ class IndexController
         $email = $params['email'];
         $theme = $params['theme'];
         $question = $params['question'];
+        $questions = new Question();
 
         if (
             !isset($name) ||
@@ -97,7 +100,7 @@ class IndexController
             Functions::flashError("Некорректно переданы параметры, проверьте чтобы все поля были заполнены!");
         }
 
-        $res = $this->questions->add($name, $email, $theme, $question);
+        $res = $questions->add($name, $email, $theme, $question);
 
         if ((int)$res === 0) {
             Functions::flashError("К сожалению ваш вопрос не был доставлен!");
@@ -111,8 +114,9 @@ class IndexController
         $login = $params['login'];
         $password = $params['password'];
         $link = 'index.php?view=LoginForm';
+        $action = new Actions();
 
-        if ($this->action->authIsLogin()) {
+        if ($action->authIsLogin()) {
             Functions::redirect();
         }
         if (!isset($login) ||
@@ -123,7 +127,7 @@ class IndexController
             return;
         }
 
-        $res = $this->action->login($login, $password);
+        $res = $action->login($login, $password);
 
         if (count($res) === 0) {
             Functions::flashError("Неверно введен логин и/или пароль!");
@@ -136,6 +140,7 @@ class IndexController
     //проверка на авторизацию
     public function isLogin()
     {
-        return $this->action->authIsLogin();
+        $action = new Actions();
+        return $action->authIsLogin();
     }
 }

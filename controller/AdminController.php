@@ -15,17 +15,15 @@ class AdminController
     public $questions;
     public $user;
     public $content;
-    public $function;
     public $theme;
 
     public function __construct()
     {
-        $this->action = new Actions();
-        $this->questions = new Question();
-        $this->function = new Functions();
-        $this->user = new User();
-        $this->content = new Content();
-        $this->theme = new Theme();
+        //$this->action = new Actions();
+        //$this->questions = new Question();
+        //$this->user = new User();
+        //$this->content = new Content();
+        //$this->theme = new Theme();
     }
 
     //отображает уведомление
@@ -58,7 +56,8 @@ class AdminController
     public function viewEditAdmin()
     {
         //echo 'Сработал контроллер editAdmin';
-        $users = $this->user->select();
+        $users = new User();
+        $users = $users->select();
         include('view/admin/editAdmin.php');
     }
 
@@ -71,9 +70,11 @@ class AdminController
     //отображает блок контент
     public function viewContent()
     {
-        $theme = $this->theme->select(['status' => 1]);
-        $content = $this->content->select();
-        $array = $this->content->formContentArray($theme, $content);
+        $theme = new Theme();
+        $content = new Content();
+        $theme = $theme->select(['status' => 1]);
+        $cont = $content->select();
+        $array = $content->formContentArray($theme, $cont);
 
         $counter = $this->contentCounter();
         include('view/admin/content.php');
@@ -85,9 +86,13 @@ class AdminController
     //отображает блок вопросов
     public function viewQuestions()
     {
-        $theme = $this->theme->select();
-        $quest = $this->questions->select();
-        $quest = $this->questions->formThemeArray($quest, $theme);
+        $theme = new Theme();
+        $content = new Content();
+        $questions = new Question();
+
+        $theme = $theme->select();
+        $quest = $questions->select();
+        $quest = $questions->formThemeArray($quest, $theme);
         include('view/admin/questions.php');
         $this->viewAnswerQuestion();
         $this->viewAnswerQuestionPublish();
@@ -103,7 +108,8 @@ class AdminController
     //отображает блок ИНФО
     public function viewContentInfo()
     {
-        $info = $this->content->getInfo();
+        $content = new Content();
+        $info = $content->getInfo();
         include('view/admin/contentInfo.php');
     }
 
@@ -122,8 +128,10 @@ class AdminController
     //отображает форму перемещения вопрос-ответа в другую тему
     public function viewMoveContent()
     {
-        $theme = $this->theme->select(['status' => 1]);
-        $content = $this->content->select();
+        $theme = new Theme();
+        $content = new Content();
+        $theme = $theme->select(['status' => 1]);
+        $content = $content->select();
         $array = $this->content->formContentArray($theme, $content);
         include('view/admin/moveContent.php');
     }
@@ -137,8 +145,10 @@ class AdminController
     //отображает форму ответа на вопрос без публикации
     public function viewAnswerQuestion()
     {
-        $theme = $this->theme->select(['status' => 1]);
-        $content = $this->content->select();
+        $theme = new Theme();
+        $content = new Content();
+        $theme = $theme->select(['status' => 1]);
+        $content = $content->select();
         $array = $this->content->formContentArray($theme, $content);
         include('view/admin/answerQuestion.php');
     }
@@ -146,8 +156,10 @@ class AdminController
     //отображает форму ответа на вопрос и публикации
     public function viewAnswerQuestionPublish()
     {
-        $theme = $this->theme->select(['status' => 1]);
-        $content = $this->content->select();
+        $theme = new Theme();
+        $content = new Content();
+        $theme = $theme->select(['status' => 1]);
+        $content = $content->select();
         $array = $this->content->formContentArray($theme, $content);
         include('view/admin/answerQuestionPublish.php');
     }
@@ -164,6 +176,7 @@ class AdminController
         $login = $params['login'];
         $password = $params['password'];
         $link = 'admin.php';
+        $user = new User();
 
         if (!isset($login) || !isset($password) || trim($login) === '' || trim($password) === '') {
             Functions::flashError("Все поля должны быть заполнены!", $link);
@@ -173,7 +186,7 @@ class AdminController
             Functions::flashError('Администратор с таким именем уже существует', $link);
         }
 
-        $res = $this->user->add($login, $password);
+        $res = $user->add($login, $password);
 
         if ((int)$res === 0) {
             Functions::flashError("К сожалению администратор не был добавлен!", $link);
@@ -188,6 +201,8 @@ class AdminController
         $id = $params['id'];
         $password = $params['password'];
         $link = 'admin.php';
+        $user = new User();
+
 
         if (!isset($id) ||
             !isset($password) ||
@@ -202,7 +217,7 @@ class AdminController
             Functions::flashError("Администратора с таким идентификатором не существует!", $link);
         }
 
-        $res = $this->user->edit($id, $password);
+        $res = $user->edit($id, $password);
         if (!$res) {
             Functions::flashError("К сожалению не удалось изменить пароль у администратора!", $link);
         }
@@ -215,18 +230,19 @@ class AdminController
     {
         $id = $params['id'];
         $link = 'admin.php?view=EditAdmin';
+        $user = new User();
 
         if (!isset($id) || (int)$id === 0) {
             Functions::flashError("Все поля должны быть заполнены", $link);
         }
 
-        $res = $this->user->select(['id' => $id]);
+        $res = $user->select(['id' => $id]);
 
         if (count($res) === 0) {
             Functions::flashError("Администратора с таким идентификатором не существует!", $link);
         }
 
-        $res = $this->user->delete($id);
+        $res = $user->delete($id);
 
         Functions::flashOk('Администратор успешно удален!', $link);
     }
@@ -236,12 +252,13 @@ class AdminController
     {
         $name = $params['name'];
         $link = 'admin.php?view=AddTheme';
+        $theme = new Theme();
 
         if (!isset($name) || trim($name) === '') {
             Functions::flashError("Все поля должны быть заполнены!", $link);
         }
 
-        $res = $this->theme->add($name);
+        $res = $theme->add($name);
         if ((int)$res === 0) {
             Functions::flashError("К сожалению тема не была добавлена!", $link);
         }
@@ -254,17 +271,18 @@ class AdminController
     {
         $id = $params['id'];
         $link = 'admin.php?view=Content';
+        $theme = new Theme();
 
         if (!isset($id) || (int)$id === 0) {
             Functions::flashError("Не существуют основные параметры", $link);
         }
 
-        $res = $this->theme->select(['id' => $id]);
+        $res = $theme->select(['id' => $id]);
         if (count($res) === 0) {
             Functions::flashError("Темы с таким идентификатором нет в системе!", $link);
         }
 
-        $this->theme->delete($id);
+        $theme->delete($id);
         Functions::flashOk('Тема успешно удалена!', $link);
     }
 
@@ -275,6 +293,8 @@ class AdminController
         $question = $params['question'];
         $answer = $params['answer'];
         $link = 'admin.php?view=Content';
+        $content = new Content();
+
 
         if (!isset($idTheme) ||
             !isset($question) ||
@@ -285,7 +305,7 @@ class AdminController
             Functions::flashError("Не существуют основные параметры!", $link);
         }
 
-        $res = $this->content->add($idTheme, $question, $answer);
+        $res = $content->add($idTheme, $question, $answer);
         if ((int)$res === 0) {
             Functions::flashError("К сожалению тема не была добавлена!", $link);
         }
@@ -301,6 +321,8 @@ class AdminController
         $question = $params['question'];
         $answer = $params['answer'];
         $link = 'admin.php?view=Content';
+        $content = new Content();
+        $theme = new Theme();
 
         if (!isset($idTheme) ||
             !isset($question) ||
@@ -312,13 +334,13 @@ class AdminController
             trim($name) === '') {
             Functions::flashError("Не существуют основные параметры!", $link);
         }
-        $theme = $this->theme->select(['id' => $idTheme, 'status' => 1]);
+        $theme = $theme->select(['id' => $idTheme, 'status' => 1]);
 
         if (count($theme) === 0) {
             Functions::flashError("Темы с таким идентификатором не сущесвует!", $link);
         }
 
-        $res = $this->content->edit($idTheme, $name, $question, $answer);
+        $res = $content->edit($idTheme, $name, $question, $answer);
         if (!$res) {
             Functions::flashError("Не удалось изменить вопрос!", $link);
         }
@@ -332,6 +354,9 @@ class AdminController
         $idTheme = $params['id_theme'];
         $theme = $params['theme'];
         $link = 'admin.php?view=Content';
+        $content = new Content();
+        $theme = new Theme();
+
 
         if (!isset($idTheme) ||
             !isset($theme) ||
@@ -340,12 +365,12 @@ class AdminController
             Functions::flashError("Не существуют основные параметры!", $link);
         }
 
-        $res = $this->theme->select(['id' => $theme]);
+        $res = $theme->select(['id' => $theme]);
         if (count($res) === 0) {
             Functions::flashError("Темы с таким идентификатором не сущесвует!", $link);
         }
 
-        $res = $this->content->move($idTheme, $theme);
+        $res = $content->move($idTheme, $theme);
         if (!$res) {
             Functions::flashError("Не удалось переместить вопрос!", $link);
         }
@@ -358,17 +383,19 @@ class AdminController
     {
         $id = $params['id'];
         $link = 'admin.php?view=Content';
+        $content = new Content();
+
 
         if (!isset($id) || (int)$id === 0) {
             Functions::flashError("Не существуют основные параметры!", $link);
         }
 
-        $res = $this->content->select(['id' => $id]);
+        $res = $content->select(['id' => $id]);
         if (count($res) === 0) {
             Functions::flashError("Вопросы с таким идентификатором нет в системе!", $link);
         }
 
-        $res = $this->content->delete($id);
+        $res = $content->delete($id);
         Functions::flashOk('Вопрос успешно удален!', $link);
     }
 
@@ -378,17 +405,19 @@ class AdminController
         $id = $params['id'];
         $status = $params['status'];
         $link = 'admin.php?view=Content';
+        $content = new Content();
+
 
         if (!isset($id) || !isset($status) || (int)$id === 0) {
             Functions::flashError("Не существуют основные параметры!", $link);
         }
 
-        $res = $this->content->select(['id' => $id]);
+        $res = $content->select(['id' => $id]);
         if (count($res) === 0) {
             Functions::flashError("Вопроса с таким идентификатором нет в системе!", $link);
         }
 
-        $res = $this->content->changeStatus($id, $status);
+        $res = $content->changeStatus($id, $status);
         if (!$res) {
             Functions::flashError("Статус не изменен!", $link);
         }
@@ -402,17 +431,19 @@ class AdminController
         $id = $params['id'];
         $question = $params['question'];
         $link = 'admin.php?view=Questions';
+        $questions = new Question();
+
 
         if ((int)$id === 0 || trim($question) === '') {
             Functions::flashError("Все поля должны быть заполнены!", $link);
         }
-        $res = $this->questions->select(['id' => $id]);
+        $res = $questions->select(['id' => $id]);
 
         if (count($res) === 0) {
             Functions::flashError("Вопроса с таким идентификатором не сущесвует!", $link);
         }
 
-        $res = $this->questions->edit($id, $question);
+        $res = $questions->edit($id, $question);
         if (!$res) {
             Functions::flashError("Не удалось изменить вопрос!", $link);
         }
@@ -429,6 +460,8 @@ class AdminController
         $idTheme = $params['id_theme'];
         $answer = $params['answer'];
         $link = 'admin.php?view=Questions';
+        $questions = new Question();
+
 
         if (!isset($idTheme) ||
             !isset($id) ||
@@ -446,7 +479,7 @@ class AdminController
             Functions::flashError("Не существуют основные параметры!", $link);
         }
 
-        $res = $this->questions->answerPublish($question, $id, $name, $email, $idTheme, $answer);
+        $res = $questions->answerPublish($question, $id, $name, $email, $idTheme, $answer);
         if ((int)$res === 0) {
             Functions::flashError("К сожалению вопрос  не был добавлен!", $link);
         }
@@ -463,6 +496,8 @@ class AdminController
         $idTheme = $params['id_theme'];
         $answer = $params['answer'];
         $link = 'admin.php?view=Questions';
+        $questions = new Question();
+
 
         if (!isset($idTheme) ||
             !isset($id) ||
@@ -479,7 +514,7 @@ class AdminController
             Functions::flashError("Не существуют основные параметры!", $link);
         }
 
-        $res = $this->questions->answer($question, $id, $name, $email, $idTheme, $answer);
+        $res = $questions->answer($question, $id, $name, $email, $idTheme, $answer);
 
         if ((int)$res === 0) {
             Functions::flashError("К сожалению вопрос  не был добавлен!", $link);
@@ -492,44 +527,49 @@ class AdminController
     {
         $id = $params['id'];
         $link = 'admin.php?view=Questions';
+        $questions = new Question();
 
         if (!isset($id) || (int)$id === 0) {
             Functions::flashError("Не существуют основные параметры!", $link);
         }
 
-        $res = $this->questions->select(['id' => $id]);
+        $res = $questions->select(['id' => $id]);
         if (count($res) === 0) {
             Functions::flashError("Такого вопроса, нет!", $link);
         }
 
-        $res = $this->questions->delete($id);
+        $res = $questions->delete($id);
         Functions::flashOk('Вопрос успешно удален!', $link);
     }
 
     //получает массив информации для счетчиков в блоке контента
     public function contentCounter()
     {
-        return $this->content->getCounter();
+        $content = new Content();
+        return $content->getCounter();
     }
 
     public function actionLogin($params)
     {
         $login = $params['login'];
         $password = $params['password'];
+        $action = new Actions();
 
-        $this->action->login($login, $password);
+        $action->login($login, $password);
     }
 
     //выход из админки
     public function actionLogOut()
     {
         unset($_SESSION['login']);
-        $this->action->logOut();
+        $action = new Actions();
+        $action->logOut();
     }
 
     //проверка на авторизацию
     public function isLogin()
     {
-        return $this->action->authIsLogin();
+        $action = new Actions();
+        return $action->authIsLogin();
     }
 }

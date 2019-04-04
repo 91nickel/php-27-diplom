@@ -148,8 +148,8 @@ class AdminController
         $theme = new Theme();
         $content = new Content();
         $theme = $theme->select(['status' => 1]);
-        $content = $content->select();
-        $array = $this->content->formContentArray($theme, $content);
+        $cont = $content->select();
+        $array = $content->formContentArray($theme, $cont);
         include('view/admin/answerQuestion.php');
     }
 
@@ -159,8 +159,8 @@ class AdminController
         $theme = new Theme();
         $content = new Content();
         $theme = $theme->select(['status' => 1]);
-        $content = $content->select();
-        $array = $this->content->formContentArray($theme, $content);
+        $cont = $content->select();
+        $array = $content->formContentArray($theme, $cont);
         include('view/admin/answerQuestionPublish.php');
     }
 
@@ -181,7 +181,7 @@ class AdminController
         if (!isset($login) || !isset($password) || trim($login) === '' || trim($password) === '') {
             Functions::flashError("Все поля должны быть заполнены!", $link);
         }
-        $res = $this->user->select(['login' => $login]);
+        $res = $user->select(['login' => $login]);
         if (count($res) > 0) {
             Functions::flashError('Администратор с таким именем уже существует', $link);
         }
@@ -212,7 +212,7 @@ class AdminController
             Functions::flashError("Все поля должны быть заполнены!", $link);
         }
 
-        $res = $this->user->select(['id' => $id]);
+        $res = $user->select(['id' => $id]);
         if (count($res) === 0) {
             Functions::flashError("Администратора с таким идентификатором не существует!", $link);
         }

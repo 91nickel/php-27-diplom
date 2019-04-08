@@ -28,10 +28,6 @@ class DataBases
     /*Метод для выборки */
     public function select($table, $field = [], $where = [], $order = [], $limit = [])
     {
-        //echo '</br>Переменная where в функции select</br>';
-        //var_dump($where);
-        //echo '</br>';
-
         $sql = "SELECT ";
         if (count($field) === 0) {
             $sql .= "*";
@@ -61,8 +57,6 @@ class DataBases
         //var_dump($sql);
         return $this->query($sql);
     }
-
-
     /*Метод для добавления*/
     public function insert($table, $field = [])
     {
@@ -76,8 +70,6 @@ class DataBases
         if (!$res) return false;
         return $this->pdo->lastInsertId();
     }
-
-
     /*Метод обновления */
     public function update($table, $field, $where)
     {
@@ -90,8 +82,6 @@ class DataBases
         var_dump($sql);
         return $this->query($sql);
     }
-
-
     /*Метод удаления*/
     public function delete($table, $where = [])
     {
@@ -102,13 +92,11 @@ class DataBases
         $sql .= $this->where($where);
         $this->query($sql);
     }
-
     /*Метод сортировки*/
     public function orderBy($array)
     {
         return ' ORDER BY `' . $array[0] . '` ' . $array[1];
     }
-
     public function limit($array)
     {
         $limit = $array[0];
@@ -117,13 +105,9 @@ class DataBases
         }
         return ' LIMIT ' . $limit;
     }
-
     /*Метод формирования предиката WHERE*/
     public function where($array, $separator = 'AND', $operator = '=')
     {
-        //echo '</br>Переменная $array в функции where</br>';
-        //var_dump($array);
-        //echo '</br>';
         $where = ' WHERE ';
         foreach ($array as $field => $value) {
             //var_dump($value);
@@ -148,9 +132,6 @@ class DataBases
                 $flag = true;
             }
         }
-        //echo '</br>Возвращаемый массив из функции where</br>';
-        //var_dump($where);
-        //echo '</br>';
         return $where;
     }
 
@@ -166,7 +147,6 @@ class DataBases
         return $data;
     }
     //output
-
     /* Вывод из базы данных полей и из обработка */
     public function resOutPut($res)
     {
@@ -178,7 +158,6 @@ class DataBases
             }
         }
         return $array;
-
     }
 
     /*Защита от XSS атак экранирование спец. символов*/
@@ -209,12 +188,6 @@ class DataBases
 
     public function whereSelect($table, $where)
     {
-        //echo '</br> Переменная $table в функции where_select </br>';
-        //var_dump($table);
-
-        //echo '</br> Переменная $where в функции where_select </br>';
-        //var_dump($where);
-
         return $this->resOutPut($this->select($table, [], $where, [], []));
     }
 
@@ -267,9 +240,6 @@ class DataBases
         $result = $this->pdo->prepare($sql);
         $result->execute();
         $return = $result->fetchAll();
-        //echo 'Запрос: ' . $sql;
-        //echo 'Результат: ';
-        //var_dump($return);
         return $return;
     }
 }

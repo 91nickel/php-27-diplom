@@ -17,15 +17,6 @@ class AdminController
     public $content;
     public $theme;
 
-    public function __construct()
-    {
-        //$this->action = new Actions();
-        //$this->questions = new Question();
-        //$this->user = new User();
-        //$this->content = new Content();
-        //$this->theme = new Theme();
-    }
-
     //отображает уведомление
     public function viewFlashShow()
     {
@@ -497,7 +488,6 @@ class AdminController
         $answer = $params['answer'];
         $link = 'admin.php?view=Questions';
         $questions = new Question();
-
 
         if (!isset($idTheme) ||
             !isset($id) ||
